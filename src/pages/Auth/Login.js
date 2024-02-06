@@ -19,8 +19,7 @@ import {
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import useToast from "../../Hooks/useToast";
-import { ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router";
+import { debounce } from "lodash";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDpS4ImPg_qgXoaHpMZzP1o-f98lKizx8",
@@ -37,7 +36,6 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const auth = getAuth();
   const { showToast } = useToast();
-  const navigate = useNavigate();
 
   const signUp = async (payload) => {
     const { email, password } = payload;
@@ -52,16 +50,19 @@ const Login = () => {
       showToast("Sign up error", "error");
     }
   };
+  // const debouncedSubmit = debounce((values) => {
+  //   isLogin ? login(values) : signUp(values);
+  // }, 300);
 
   const login = async (payload) => {
     const { email, password } = payload;
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      showToast("Login successful");
+      window.location.href = "/dashboard";
+      showToast("SignIn successful");
       console.log("Login successful");
       localStorage.setItem("token", auth.currentUser.accessToken);
-      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error.message);
       showToast("Invalid credentials", "error");
@@ -85,8 +86,7 @@ const Login = () => {
     }),
 
     onSubmit: (values) => {
-      // Implement your login logic here
-      // alert("Form submitted");
+      // debouncedSubmit(values);
       isLogin ? login(values) : signUp(values);
     },
   });
